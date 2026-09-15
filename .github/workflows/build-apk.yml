@@ -1,0 +1,53 @@
+name: Build Finance Control APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Ambil project
+        uses: actions/checkout@v4
+
+      - name: Siapkan Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Siapkan Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK
+        run: |
+          sdkmanager "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Ekstrak project Android
+        run: |
+          mkdir extracted
+          unzip -q Finance_Control_Android_Project.zip -d extracted
+          echo "Isi project:"
+          find extracted -maxdepth 3 -type f | head -100
+
+      - name: Cari folder Android
+        run: |
+          PROJECT_DIR=$(find extracted -name settings.gradle -o -name settings.gradle.kts | head -1 | xargs dirname)
+          echo "PROJECT_DIR=$PROJECT_DIR" >> $GITHUB_ENV
+          echo "Project ditemukan di: $PROJECT_DIR"
+
+      - name: Build APK
+        run: |
+          cd "$PROJECT_DIR"
+          gradle assembleDebug --stacktrace
+
+      - name: Simpan APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Finance-Control-APK
+          path: "**/build/outputs/apk/debug/*.apk"
+          if-no-files-found: error
