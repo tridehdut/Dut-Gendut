@@ -40,7 +40,7 @@ jobs:
         run: |
           rm -rf project
           mkdir project
-          unzip -q Finance_Control_Android_Project_FIXED.zip -d project
+          unzip -q Finance_Control_Android_IDUT_GENDUT.zip -d project
 
       - name: Locate Android project
         run: |
